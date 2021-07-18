@@ -14,7 +14,7 @@
 <br>&nbsp;* Press <b>Q</b> and click 2 points (destination point + control point) to trace a Quadratic Curve.
 <br>&nbsp;* Press <b>A</b> and click 2 points (destination point + radii) + press 0, 1, 2 or 3 to trace an arc.
 <br>&nbsp;* Press <b>Z</b> to close and end the current path.
-<br>&nbsp;* Press <b>C</b>, <b>R</b> or <b>P</b> to end the current path and start a new Circle, Rectangle or Path.
+<br>&nbsp;* Press <b>C</b>, <b>E</b>, <b>R</b> or <b>P</b> to end the current path and start a new shape.
 <br>Then copy the code below and edit each shape's fill / stroke color manually.
 
 <br><br>
@@ -344,7 +344,7 @@ b.onclick = e => {
       c.arc(cx * 6, cy * 6, r * 6, 0, 7);
       c.stroke();
       mode = "";
-      svg += `<circle cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="transparent" stroke="#000"/>\n`;
+      svg += `<circle cx=${cx} cy=${cy} r=${r} fill="transparent" stroke="#000"/>\n`;
     }
     
     else if(mode == "e" && clicksToDo == 2){
@@ -359,7 +359,7 @@ b.onclick = e => {
       c.ellipse(cx * 6, cy * 6, rx * 6, ry * 6, 0, 0, 7);
       c.stroke();
       mode = "";
-      svg += `<ellipse cx=${cx} cy=${cy} r=${r} fill="transparent" stroke="#000"/>\n`;
+      svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="transparent" stroke="#000"/>\n`;
     }
     
     else if(mode == "r" && clicksToDo == 2){
