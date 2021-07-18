@@ -1,0 +1,472 @@
+﻿<title>MiniSVGcreator</title>
+<table>
+<tr>
+<td style="min-width:650px">
+<h3>MiniSVGcreator</h3>
+<p>This tool helps creating tiny SVG files using mouse and keyboard.
+<br>- Press <b>C</b> and click two points (center + radius) to add a Circle.
+<br>- Press <b>E</b> and click two points (center + radii) to add an Ellipse.
+<br>- Press <b>R</b> and click two points (top-left + bottom-right) to add a Rectangle.
+<br>- Press <b>P</b> and click a point to start a new path, then:
+<br>&nbsp;* Press <b>M</b> and click a point to Move to a new position.
+<br>&nbsp;* Press <b>L</b> and click a point to trace a Line to a new position.
+<br>&nbsp;* Press <b>B</b> and click 3 points (destination point + 2 control points) to trace a Bezier Curve.
+<br>&nbsp;* Press <b>Q</b> and click 2 points (destination point + control point) to trace a Quadratic Curve.
+<br>&nbsp;* Press <b>A</b> and click 2 points (destination point + radii) + press 0, 1, 2 or 3 to trace an arc.
+<br>&nbsp;* Press <b>Z</b> to close and end the current path.
+<br>&nbsp;* Press <b>C</b>, <b>R</b> or <b>P</b> to end the current path and start a new Circle, Rectangle or Path.
+<br>Then copy the code below and edit each shape's fill / stroke color manually.
+
+<br><br>
+SVG code: 
+<br>
+<br>
+<textarea readonly id=out></textarea>
+
+<br><br>SVG preview: <div id=preview></div>
+
+<td>
+
+<canvas id=a width=595 height=595></canvas>
+<canvas id=b width=595 height=595></canvas>
+
+<div id=z>Mouse coords: [<span id=coords>0, 0</span>]</div>
+
+<style>
+body{font-family: arial}
+#a,#b{cursor:crosshair}
+td {vertical-align:top;position:relative}
+canvas {position:absolute}
+#preview {border: 1px solid #000; width: 100px; height: 100px; display: inline-block }
+#z {margin-top: 620px }
+#out {width: 600px; height:160px;font-size: 12px}
+</style>
+
+<script>
+svgstart = "<svg width=99 height=99 xmlns='http://www.w3.org/2000/svg'>\n";
+svg = "";
+svgend = "</svg>";
+out.value = preview.innerHTML = svgstart + svg + svgend;
+
+mode = "";
+submode = "";
+arcmode = 1;
+clicksToDo = 0;
+mx = -1;
+my = -1;
+c = a.getContext("2d");
+d = b.getContext("2d");
+c.strokeStyle = "#bbb";
+
+for(i=0;i<101;i++){
+  c.moveTo(i*6,0);
+  c.lineTo(i*6,600);
+  
+  c.moveTo(0,i*6);
+  c.lineTo(600,i*6);
+}
+c.stroke();
+c.lineWidth = 6;
+c.strokeStyle = "#000";
+
+onkeydown = e => {
+  if(e.keyCode == 49) { arcmode = 1; mm({pageX, pageY}); }
+  if(e.keyCode == 50) { arcmode = 2; mm({pageX, pageY}); }
+  if(e.keyCode == 51) { arcmode = 3; mm({pageX, pageY}); }
+  if(e.keyCode == 52) { arcmode = 4; mm({pageX, pageY}); e.preventDefault(); e.stopPropagation(); }
+  if(mode == "" || mode == "p") {
+    if(e.key == "c"){
+      if(mode == "p"){
+        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        out.value = preview.innerHTML = svgstart + svg + svgend;
+      }
+      mode = "c";
+      clicksToDo = 2;
+    }
+    if(e.key == "e"){
+      if(mode == "p"){
+        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        out.value = preview.innerHTML = svgstart + svg + svgend;
+      }
+      mode = "e";
+      clicksToDo = 2;
+    }
+    if(e.key == "r"){
+      if(mode == "p"){
+        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        out.value = preview.innerHTML = svgstart + svg + svgend;
+      }
+      mode = "r";
+      clicksToDo = 2;
+    }
+    if(e.key == "p"){
+      if(mode == "p"){
+        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        out.value = preview.innerHTML = svgstart + svg + svgend;
+      }
+      mode = "p";
+      submode = "m";
+      mx = -1;
+      my = -1;
+      clicksToDo = 1;
+      path = "";
+    }
+    
+  }
+  if(mode == "p"){
+    if(e.key == "m"){
+      submode = "m";
+      clicksToDo = 1;
+    }
+    if(e.key == "l"){
+      submode = "l";
+      clicksToDo = 1;
+    }
+    if(e.key == "t"){
+      submode = "t";
+      clicksToDo = 1;
+    }
+    if(e.key == "a"){
+      submode = "a";
+      clicksToDo = 2;
+    }
+    if(e.key == "b"){
+      submode = "b";
+      clicksToDo = 3;
+    }
+    if(e.key == "q"){
+      submode = "q";
+      clicksToDo = 2;
+    }
+    if(e.key == "z"){
+      mode = "";
+      submode = "";
+      path += "Z";
+      svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+      out.value = preview.innerHTML = svgstart + svg + svgend;
+      c.beginPath();
+      c.moveTo(lastx * 6,lasty * 6);
+      c.lineTo(mx * 6, my * 6);
+      c.stroke();
+    }
+  }
+}
+
+mm = b.onmousemove = e => {
+  b.width ^= 0;
+  d.lineWidth = 6;
+  
+  pageX = e.pageX;
+  pageY = e.pageY;
+  
+  X = Math.floor((e.pageX - a.getBoundingClientRect().left) / 6);
+  Y = Math.floor((e.pageY - a.getBoundingClientRect().top) / 6);
+  coords.innerHTML = X + ", " + Y;
+  
+  d.fillStyle = "blue";
+  d.strokeStyle = "blue";
+  
+  if(mx > -1 && my > -1){
+    d.beginPath();
+    d.arc(mx * 6, my * 6, 3, 0, 7);
+    d.fill();
+  }
+  
+  if(clicksToDo){
+    
+    if(mode == "c" && clicksToDo == 2){
+      cx = X;
+      cy = Y;
+      d.beginPath();
+      d.arc(cx*6, cy*6, 3, 0, 7);
+      d.fill();
+    }
+    
+    else if(mode == "c" && clicksToDo == 1){
+      r = Math.floor(Math.hypot(cx - X, cy - Y));
+      d.beginPath();
+      d.arc(cx * 6, cy * 6, r * 6, 0, 7);
+      d.stroke();
+    }
+    
+    else if(mode == "e" && clicksToDo == 2){
+      cx = X;
+      cy = Y;
+      d.beginPath();
+      d.arc(cx*6, cy*6, 3, 0, 7);
+      d.fill();
+    }
+    
+    else if(mode == "e" && clicksToDo == 1){
+      rx = Math.abs(Math.floor(cx - X));
+      ry = Math.abs(Math.floor(cy - Y));
+      d.beginPath();
+      d.ellipse(cx * 6, cy * 6, rx * 6, ry * 6, 0, 0, 7);
+      d.stroke();
+    }
+    
+    else if(mode == "r" && clicksToDo == 2){
+      x = X;
+      y = Y;
+      d.beginPath();
+      d.arc(x*6, y*6, 3, 0, 7);
+      
+      d.fill();
+    }
+    
+    else if(mode == "r" && clicksToDo == 1){
+      width = Math.abs(Math.floor(x - X));
+      height = Math.abs(Math.floor(y - Y));
+      d.beginPath();
+      d.rect(x * 6, y * 6, width * 6, height * 6);
+      d.stroke();
+    }
+    
+    else if(mode == "p"){
+      if(submode == "m"){
+        if(clicksToDo == 1){
+          mx = X;
+          my = Y;
+          d.beginPath();
+          d.arc(mx * 6, my * 6, 3, 0, 7);
+          d.fill();
+        }
+      }
+      else if(submode == "l"){
+        if(clicksToDo == 1){
+          lx = X;
+          ly = Y;
+          d.beginPath();
+          d.moveTo(lastx * 6, lasty * 6);
+          d.lineTo(lx * 6, ly * 6);
+          d.stroke();
+        }
+      }
+      else if(submode == "a"){
+        if(clicksToDo == 2){
+          dx = X;
+          dy = Y;
+          d.beginPath();
+          d.moveTo(lastx * 6, lasty * 6);
+          d.lineTo(dx * 6, dy * 6);
+          d.stroke();
+        }
+        if(clicksToDo == 1){
+          rx = Math.abs(Math.floor(dx - X));
+          ry = Math.abs(Math.floor(dy - Y));
+          d.beginPath();
+          d.strokeStyle = "grey";
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} A${rx * 6} ${ry * 6} 0 0 0 ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+          
+          d.beginPath();
+          d.strokeStyle = "grey";
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} A${rx * 6} ${ry * 6} 0 1 0 ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+          
+          d.beginPath();
+          d.strokeStyle = "grey";
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} A${rx * 6} ${ry * 6} 0 0 1 ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+          
+          d.beginPath();
+          d.strokeStyle = "grey";
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} A${rx * 6} ${ry * 6} 0 1 1 ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+          
+          d.beginPath();
+          d.strokeStyle = "blue";
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} A${rx * 6} ${ry * 6} 0 ${(arcmode == 2 || arcmode == 4) ? 1 : 0} ${(arcmode == 3 || arcmode == 4) ? 1 : 0} ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+        }
+      }
+      else if(submode == "b"){
+        if(clicksToDo == 3){
+          dx = X;
+          dy = Y;
+          d.beginPath();
+          d.moveTo(lastx * 6, lasty * 6);
+          d.lineTo(dx * 6, dy * 6);
+          d.stroke();
+        }
+        if(clicksToDo == 2){
+          c1x = X;
+          c1y = Y;
+          c2x = X;
+          c2y = Y;
+          d.beginPath();
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} C${c1x * 6} ${c1y * 6} ${c2x * 6} ${c2y * 6} ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+        }
+        if(clicksToDo == 1){
+          c2x = X;
+          c2y = Y;
+
+          d.beginPath();
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} C${c1x * 6} ${c1y * 6} ${c2x * 6} ${c2y * 6} ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+        }
+      }
+      else if(submode == "q"){
+        if(clicksToDo == 2){
+          dx = X;
+          dy = Y;
+          d.beginPath();
+          d.moveTo(lastx * 6, lasty * 6);
+          d.lineTo(dx * 6, dy * 6);
+          d.stroke();
+        }
+        if(clicksToDo == 1){
+          c1x = X;
+          c1y = Y;
+          d.beginPath();
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} Q${c1x * 6} ${c1y * 6} ${dx * 6} ${dy * 6}`);
+          d.stroke(mypath);
+        }
+      }
+    }
+  }
+}
+
+b.onclick = e => {
+  if(clicksToDo){
+    X = Math.floor((e.pageX - a.getBoundingClientRect().left) / 6);
+    Y = Math.floor((e.pageY - a.getBoundingClientRect().top) / 6);
+    
+    if(mode == "c" && clicksToDo == 2){
+      cx = X;
+      cy = Y;
+    }
+    
+    else if(mode == "c" && clicksToDo == 1){
+      r = Math.floor(Math.hypot(cx - X, cy - Y));
+      c.beginPath();
+      c.arc(cx * 6, cy * 6, r * 6, 0, 7);
+      c.stroke();
+      mode = "";
+      svg += `<circle cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="transparent" stroke="#000"/>\n`;
+    }
+    
+    else if(mode == "e" && clicksToDo == 2){
+      cx = X;
+      cy = Y;
+    }
+    
+    else if(mode == "e" && clicksToDo == 1){
+      rx = Math.abs(Math.floor(cx - X));
+      ry = Math.abs(Math.floor(cy - Y));
+      c.beginPath();
+      c.ellipse(cx * 6, cy * 6, rx * 6, ry * 6, 0, 0, 7);
+      c.stroke();
+      mode = "";
+      svg += `<ellipse cx=${cx} cy=${cy} r=${r} fill="transparent" stroke="#000"/>\n`;
+    }
+    
+    else if(mode == "r" && clicksToDo == 2){
+      x = X;
+      y = Y;
+    }
+    
+    else if(mode == "r" && clicksToDo == 1){
+      width = Math.abs(Math.floor(x - X));
+      height = Math.abs(Math.floor(y - Y));
+      c.beginPath();
+      c.rect(x * 6, y * 6, width * 6, height * 6);
+      c.stroke();
+      mode = "";
+      svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="transparent" stroke="#000"/>\n`;
+    }
+    
+    else if(mode == "p"){
+      if(submode == "m"){
+        if(clicksToDo == 1){
+          mx = X;
+          my = Y;
+          submode = "";
+          path += `M${mx} ${my} `;
+          lastx = X;
+          lasty = Y;
+        }
+      }
+      else if(submode == "l"){
+        if(clicksToDo == 1){
+          lx = X;
+          ly = Y;
+          c.beginPath();
+          c.moveTo(lastx * 6, lasty * 6);
+          c.lineTo(lx * 6, ly * 6);
+          c.stroke();
+          submode = "";
+          path += `L${lx} ${ly} `;
+          lastx = X;
+          lasty = Y;
+        }
+      }
+      else if(submode == "a"){
+        if(clicksToDo == 2){
+          dx = X;
+          dy = Y;
+        }
+        if(clicksToDo == 1){
+          rx = Math.abs(Math.floor(dx - X));
+          ry = Math.abs(Math.floor(dy - Y));
+          path += `A${rx} ${ry} 0 ${(arcmode == 2 || arcmode == 4) ? 1 : 0} ${(arcmode == 3 || arcmode == 4) ? 1 : 0} ${dx} ${dy}`;
+          c.beginPath();
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} A${rx * 6} ${ry * 6} 0 ${(arcmode == 2 || arcmode == 4) ? 1 : 0} ${(arcmode == 3 || arcmode == 4) ? 1 : 0} ${dx * 6} ${dy * 6}`);
+          c.stroke(mypath);
+          c.stroke();
+          lastx = dx;
+          lasty = dy;
+        }
+      }
+      else if(submode == "b"){
+        if(clicksToDo == 3){
+          dx = X;
+          dy = Y;
+        }
+        if(clicksToDo == 2){
+          c1x = X;
+          c1y = Y;
+          c2x = X;
+          c2y = Y;
+        }
+        if(clicksToDo == 1){
+          c2x = X;
+          c2y = Y;
+          path += `C${c1x} ${c1y} ${c2x} ${c2y} ${dx} ${dy}`;
+          c.beginPath();
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} C${c1x * 6} ${c1y * 6} ${c2x * 6} ${c2y * 6} ${dx * 6} ${dy * 6}`);
+          c.stroke(mypath);
+          lastx = dx;
+          lasty = dy;
+        }
+      }
+      else if(submode == "q"){
+        if(clicksToDo == 2){
+          dx = X;
+          dy = Y;
+        }
+        if(clicksToDo == 1){
+          c1x = X;
+          c1y = Y;
+          path += `Q${c1x} ${c1y} ${dx} ${dy}`;
+          c.beginPath();
+          mypath = new Path2D(`M${lastx * 6} ${lasty * 6} Q${c1x * 6} ${c1y * 6} ${dx * 6} ${dy * 6}`);
+          c.stroke(mypath);
+          lastx = dx;
+          lasty = dy;
+        }
+      }
+    }
+    
+    clicksToDo--;
+    if(mode == ""){
+      submode = "";
+      out.value = preview.innerHTML = svgstart + svg + svgend;
+    }
+    if(mode == "p" && clicksToDo == 0){
+      out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="transparent" stroke="#000"/>\n` + svgend;
+    }
+  }
+}
+</script>
