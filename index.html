@@ -15,7 +15,6 @@
 <br>&nbsp;* Press <b>A</b> and click 2 points (destination point + radii) + press 0, 1, 2 or 3 to trace an arc.
 <br>&nbsp;* Press <b>Z</b> to close and end the current path.
 <br>&nbsp;* Press <b>C</b>, <b>E</b>, <b>R</b> or <b>P</b> to end the current path and start a new shape.
-<br>Then copy the code below and edit each shape's fill / stroke color manually.
 
 <br><br>
 SVG code: 
@@ -23,7 +22,23 @@ SVG code:
 <br>
 <textarea readonly id=out></textarea>
 
-<br><br>SVG preview: <div id=preview></div>
+<br><br>
+
+<table>
+<tr>
+<td style="min-width: 400px">
+
+SVG preview:
+<br>
+<br>
+<div id=preview></div> 
+
+<td>Next shape's fill / stroke
+<br>
+<br>
+<input id=fill type=color value="#ffffff">
+<input id=stroke type=color value="#000000">
+</table>
 
 <td>
 
@@ -67,7 +82,6 @@ for(i=0;i<101;i++){
 }
 c.stroke();
 c.lineWidth = 6;
-c.strokeStyle = "#000";
 
 onkeydown = e => {
   if(e.keyCode == 49) { arcmode = 1; mm({pageX, pageY}); }
@@ -77,7 +91,8 @@ onkeydown = e => {
   if(mode == "" || mode == "p") {
     if(e.key == "c"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        c.fill();
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "c";
@@ -85,7 +100,8 @@ onkeydown = e => {
     }
     if(e.key == "e"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        c.fill();
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "e";
@@ -93,7 +109,8 @@ onkeydown = e => {
     }
     if(e.key == "r"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        c.fill();
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "r";
@@ -101,7 +118,8 @@ onkeydown = e => {
     }
     if(e.key == "p"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+        c.fill();
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "p";
@@ -142,12 +160,13 @@ onkeydown = e => {
       mode = "";
       submode = "";
       path += "Z";
-      svg += `<path d="${path}" fill="transparent" stroke="#000"/>\n`;
+      svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
       out.value = preview.innerHTML = svgstart + svg + svgend;
       c.beginPath();
       c.moveTo(lastx * 6,lasty * 6);
       c.lineTo(mx * 6, my * 6);
       c.stroke();
+      c.fill();
     }
   }
 }
@@ -329,6 +348,8 @@ mm = b.onmousemove = e => {
 }
 
 b.onclick = e => {
+  c.strokeStyle = stroke.value;
+  c.fillStyle = fill.value;
   if(clicksToDo){
     X = Math.floor((e.pageX - a.getBoundingClientRect().left) / 6);
     Y = Math.floor((e.pageY - a.getBoundingClientRect().top) / 6);
@@ -343,8 +364,9 @@ b.onclick = e => {
       c.beginPath();
       c.arc(cx * 6, cy * 6, r * 6, 0, 7);
       c.stroke();
+      c.fill();
       mode = "";
-      svg += `<circle cx=${cx} cy=${cy} r=${r} fill="transparent" stroke="#000"/>\n`;
+      svg += `<circle cx=${cx} cy=${cy} r=${r} fill="${fill.value}" stroke="${stroke.value}"/>\n`;
     }
     
     else if(mode == "e" && clicksToDo == 2){
@@ -358,8 +380,9 @@ b.onclick = e => {
       c.beginPath();
       c.ellipse(cx * 6, cy * 6, rx * 6, ry * 6, 0, 0, 7);
       c.stroke();
+      c.fill();
       mode = "";
-      svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="transparent" stroke="#000"/>\n`;
+      svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="${fill.value}" stroke="${stroke.value}"/>\n`;
     }
     
     else if(mode == "r" && clicksToDo == 2){
@@ -373,8 +396,9 @@ b.onclick = e => {
       c.beginPath();
       c.rect(x * 6, y * 6, width * 6, height * 6);
       c.stroke();
+      c.fill();
       mode = "";
-      svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="transparent" stroke="#000"/>\n`;
+      svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="${fill.value}" stroke="${stroke.value}"/>\n`;
     }
     
     else if(mode == "p"){
@@ -465,7 +489,7 @@ b.onclick = e => {
       out.value = preview.innerHTML = svgstart + svg + svgend;
     }
     if(mode == "p" && clicksToDo == 0){
-      out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="transparent" stroke="#000"/>\n` + svgend;
+      out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n` + svgend;
     }
   }
 }
