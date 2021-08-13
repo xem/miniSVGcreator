@@ -58,7 +58,7 @@ canvas {position:absolute}
 </style>
 
 <script>
-svgstart = "<svg width=99 height=99 xmlns='http://www.w3.org/2000/svg'>\n";
+svgstart = "<svg width=99 height=99 xmlns='http://www.w3.org/2000/svg'>";
 svg = "";
 svgend = "</svg>";
 out.value = preview.innerHTML = svgstart + svg + svgend;
@@ -92,7 +92,7 @@ onkeydown = e => {
     if(e.key == "c"){
       if(mode == "p"){
         c.fill();
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "c";
@@ -101,7 +101,7 @@ onkeydown = e => {
     if(e.key == "e"){
       if(mode == "p"){
         c.fill();
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "e";
@@ -110,7 +110,7 @@ onkeydown = e => {
     if(e.key == "r"){
       if(mode == "p"){
         c.fill();
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "r";
@@ -119,7 +119,7 @@ onkeydown = e => {
     if(e.key == "p"){
       if(mode == "p"){
         c.fill();
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         out.value = preview.innerHTML = svgstart + svg + svgend;
       }
       mode = "p";
@@ -160,7 +160,7 @@ onkeydown = e => {
       mode = "";
       submode = "";
       path += "Z";
-      svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+      svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
       out.value = preview.innerHTML = svgstart + svg + svgend;
       c.beginPath();
       c.moveTo(lastx * 6,lasty * 6);
@@ -366,7 +366,7 @@ b.onclick = e => {
       c.stroke();
       c.fill();
       mode = "";
-      svg += `<circle cx=${cx} cy=${cy} r=${r} fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+      svg += `<circle cx=${cx} cy=${cy} r=${r} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
     
     else if(mode == "e" && clicksToDo == 2){
@@ -382,7 +382,7 @@ b.onclick = e => {
       c.stroke();
       c.fill();
       mode = "";
-      svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+      svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
     
     else if(mode == "r" && clicksToDo == 2){
@@ -398,7 +398,7 @@ b.onclick = e => {
       c.stroke();
       c.fill();
       mode = "";
-      svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="${fill.value}" stroke="${stroke.value}"/>\n`;
+      svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
     
     else if(mode == "p"){
@@ -407,7 +407,7 @@ b.onclick = e => {
           mx = X;
           my = Y;
           submode = "";
-          path += `M${mx} ${my} `;
+          path += `M${mx} ${my}`;
           lastx = X;
           lasty = Y;
         }
@@ -421,7 +421,7 @@ b.onclick = e => {
           c.lineTo(lx * 6, ly * 6);
           c.stroke();
           submode = "";
-          path += `L${lx} ${ly} `;
+          path += `L${lx} ${ly}`;
           lastx = X;
           lasty = Y;
         }
@@ -489,7 +489,7 @@ b.onclick = e => {
       out.value = preview.innerHTML = svgstart + svg + svgend;
     }
     if(mode == "p" && clicksToDo == 0){
-      out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>\n` + svgend;
+      out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
     }
   }
 }
