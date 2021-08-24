@@ -15,12 +15,15 @@
 <br>&nbsp;* Press <b>A</b> and click 2 points (destination point + radii) + press 0, 1, 2 or 3 to trace an arc.
 <br>&nbsp;* Press <b>Z</b> to close and end the current path.
 <br>&nbsp;* Press <b>C</b>, <b>E</b>, <b>R</b> or <b>P</b> to end the current path and start a new shape.
-
+<br><br>
+Paste valid SVG data in the textbox (or edit it) and press the Load button to load it.
 <br><br>
 SVG code: 
 <br>
 <br>
-<textarea readonly id=out></textarea>
+<textarea id=out></textarea>
+<br>
+<input id=loadSVGData type=button value="Load"> 
 
 <br><br>
 
@@ -41,7 +44,7 @@ SVG preview:
 </table>
 
 <td>
-
+<div id=theview></div> 
 <canvas id=a width=595 height=595></canvas>
 <canvas id=b width=595 height=595></canvas>
 
@@ -52,6 +55,7 @@ body{font-family: arial}
 #a,#b{cursor:crosshair}
 td {vertical-align:top;position:relative}
 canvas {position:absolute}
+#theview {width: 595px; height: 595px; position: absolute; }
 #preview {border: 1px solid #000; width: 100px; height: 100px; display: inline-block }
 #z {margin-top: 620px }
 #out {width: 600px; height:160px;font-size: 12px}
@@ -59,9 +63,10 @@ canvas {position:absolute}
 
 <script>
 svgstart = "<svg width=99 height=99 xmlns='http://www.w3.org/2000/svg'>";
+svgviewstart = "<svg viewBox=\"0 0 99 99\" width=595 height=595 xmlns='http://www.w3.org/2000/svg'>";
 svg = "";
 svgend = "</svg>";
-out.value = preview.innerHTML = svgstart + svg + svgend;
+updateViews();
 
 mode = "";
 submode = "";
@@ -91,36 +96,32 @@ onkeydown = e => {
   if(mode == "" || mode == "p") {
     if(e.key == "c"){
       if(mode == "p"){
-        c.fill();
         svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
-        out.value = preview.innerHTML = svgstart + svg + svgend;
+        updateViews();
       }
       mode = "c";
       clicksToDo = 2;
     }
     if(e.key == "e"){
       if(mode == "p"){
-        c.fill();
         svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
-        out.value = preview.innerHTML = svgstart + svg + svgend;
+        updateViews();
       }
       mode = "e";
       clicksToDo = 2;
     }
     if(e.key == "r"){
       if(mode == "p"){
-        c.fill();
         svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
-        out.value = preview.innerHTML = svgstart + svg + svgend;
+        updateViews();
       }
       mode = "r";
       clicksToDo = 2;
     }
     if(e.key == "p"){
       if(mode == "p"){
-        c.fill();
         svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
-        out.value = preview.innerHTML = svgstart + svg + svgend;
+        updateViews();
       }
       mode = "p";
       submode = "m";
@@ -161,12 +162,7 @@ onkeydown = e => {
       submode = "";
       path += "Z";
       svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
-      out.value = preview.innerHTML = svgstart + svg + svgend;
-      c.beginPath();
-      c.moveTo(lastx * 6,lasty * 6);
-      c.lineTo(mx * 6, my * 6);
-      c.stroke();
-      c.fill();
+      updateViews();
     }
   }
 }
@@ -361,10 +357,6 @@ b.onclick = e => {
     
     else if(mode == "c" && clicksToDo == 1){
       r = Math.floor(Math.hypot(cx - X, cy - Y));
-      c.beginPath();
-      c.arc(cx * 6, cy * 6, r * 6, 0, 7);
-      c.stroke();
-      c.fill();
       mode = "";
       svg += `<circle cx=${cx} cy=${cy} r=${r} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
@@ -377,10 +369,6 @@ b.onclick = e => {
     else if(mode == "e" && clicksToDo == 1){
       rx = Math.abs(Math.floor(cx - X));
       ry = Math.abs(Math.floor(cy - Y));
-      c.beginPath();
-      c.ellipse(cx * 6, cy * 6, rx * 6, ry * 6, 0, 0, 7);
-      c.stroke();
-      c.fill();
       mode = "";
       svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
@@ -393,10 +381,6 @@ b.onclick = e => {
     else if(mode == "r" && clicksToDo == 1){
       width = Math.abs(Math.floor(x - X));
       height = Math.abs(Math.floor(y - Y));
-      c.beginPath();
-      c.rect(x * 6, y * 6, width * 6, height * 6);
-      c.stroke();
-      c.fill();
       mode = "";
       svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
@@ -486,11 +470,23 @@ b.onclick = e => {
     clicksToDo--;
     if(mode == ""){
       submode = "";
-      out.value = preview.innerHTML = svgstart + svg + svgend;
+      updateViews();
     }
     if(mode == "p" && clicksToDo == 0){
       out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
+      theview.innerHTML = svgviewstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
     }
   }
+}
+
+function updateViews () {
+  out.value = preview.innerHTML = svgstart + svg + svgend;
+  theview.innerHTML = svgviewstart + svg + svgend;
+}
+
+loadSVGData.onclick = () => {
+  originalValue = out.value;
+  svg = originalValue.substring(originalValue.indexOf(svgstart) + svgstart.length, originalValue.indexOf(svgend));
+  updateViews();
 }
 </script>
