@@ -23,20 +23,29 @@ SVG code:
 <br>
 <textarea id=out></textarea>
 <br>
+<br>
 <input id=loadSVGData type=button value="Load"> 
 
-<br><br>
+<br>
+<br>
 
 <table>
 <tr>
-<td style="min-width: 400px">
+<td style=min-width:200px>
 
 SVG preview:
 <br>
 <br>
 <div id=preview></div> 
 
-<td>Next shape's fill / stroke
+<td style=min-width:200px>
+Scale
+<br>
+<br>
+<input type=number step=1 min=1 max=100 value=1 id=scale>
+
+<td>
+Next shape's fill / stroke
 <br>
 <br>
 <input id=fill type=color value="#ffffff">
@@ -62,9 +71,10 @@ canvas {position:absolute}
 </style>
 
 <script>
-svgstart = "<svg width=99 height=99 xmlns='http://www.w3.org/2000/svg'>";
+svgstart = () => { return "<svg width=" + 99 * scale.value + " height=" + 99 * scale.value + " xmlns='http://www.w3.org/2000/svg'>"; }
 svgviewstart = "<svg viewBox=\"0 0 99 99\" width=595 height=595 xmlns='http://www.w3.org/2000/svg'>";
 svg = "";
+svgview = "";
 svgend = "</svg>";
 updateViews();
 
@@ -96,7 +106,8 @@ onkeydown = e => {
   if(mode == "" || mode == "p") {
     if(e.key == "c"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svg += `<path d="${path.replace(/\d+/g,a=>+a*scale.value)}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svgview += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         updateViews();
       }
       mode = "c";
@@ -104,7 +115,8 @@ onkeydown = e => {
     }
     if(e.key == "e"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svg += `<path d="${path.replace(/\d+/g,a=>+a*scale.value)}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svgview += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         updateViews();
       }
       mode = "e";
@@ -112,7 +124,8 @@ onkeydown = e => {
     }
     if(e.key == "r"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svg += `<path d="${path.replace(/\d+/g,a=>+a*scale.value)}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svgview += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         updateViews();
       }
       mode = "r";
@@ -120,7 +133,8 @@ onkeydown = e => {
     }
     if(e.key == "p"){
       if(mode == "p"){
-        svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svg += `<path d="${path.replace(/\d+/g,a=>+a*scale.value)}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+        svgview += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
         updateViews();
       }
       mode = "p";
@@ -161,7 +175,8 @@ onkeydown = e => {
       mode = "";
       submode = "";
       path += "Z";
-      svg += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svg += `<path d="${path.replace(/\d+/g,a=>+a*scale.value)}" fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svgview += `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>`;
       updateViews();
     }
   }
@@ -358,7 +373,8 @@ b.onclick = e => {
     else if(mode == "c" && clicksToDo == 1){
       r = Math.floor(Math.hypot(cx - X, cy - Y));
       mode = "";
-      svg += `<circle cx=${cx} cy=${cy} r=${r} fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svg += `<circle cx=${cx*scale.value} cy=${cy*scale.value} r=${r*scale.value} fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svgview += `<circle cx=${cx} cy=${cy} r=${r} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
     
     else if(mode == "e" && clicksToDo == 2){
@@ -370,7 +386,8 @@ b.onclick = e => {
       rx = Math.abs(Math.floor(cx - X));
       ry = Math.abs(Math.floor(cy - Y));
       mode = "";
-      svg += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svg += `<ellipse cx=${cx*scale.value} cy=${cy*scale.value} rx=${rx*scale.value} ry=${ry*scale.value} fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svgview += `<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
     
     else if(mode == "r" && clicksToDo == 2){
@@ -382,7 +399,8 @@ b.onclick = e => {
       width = Math.abs(Math.floor(x - X));
       height = Math.abs(Math.floor(y - Y));
       mode = "";
-      svg += `<rect x=${x} y=${y} width=${width} height=${height} fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svg += `<rect x=${x*scale.value} y=${y*scale.value} width=${width*scale.value} height=${height*scale.value} fill="${fill.value}" stroke="${stroke.value}"/>`;
+      svgview += `<rect x=${x} y=${y} width=${width} height=${height} fill="${fill.value}" stroke="${stroke.value}"/>`;
     }
     
     else if(mode == "p"){
@@ -473,20 +491,21 @@ b.onclick = e => {
       updateViews();
     }
     if(mode == "p" && clicksToDo == 0){
-      out.value = preview.innerHTML = svgstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
-      theview.innerHTML = svgviewstart + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
+      out.value = preview.innerHTML = svgstart() + svg + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
+      theview.innerHTML = svgviewstart + svgview + `<path d="${path}" fill="${fill.value}" stroke="${stroke.value}"/>` + svgend;
     }
   }
 }
 
 function updateViews () {
-  out.value = preview.innerHTML = svgstart + svg + svgend;
-  theview.innerHTML = svgviewstart + svg + svgend;
+  out.value = preview.innerHTML = svgstart() + svg + svgend;
+  theview.innerHTML = svgviewstart + svgview + svgend;
 }
 
 loadSVGData.onclick = () => {
+  scale.value = 1;
   originalValue = out.value;
-  svg = originalValue.substring(originalValue.indexOf(svgstart) + svgstart.length, originalValue.indexOf(svgend));
+  svg = originalValue.substring(originalValue.indexOf(svgstart()) + svgstart().length, originalValue.indexOf(svgend));
   updateViews();
 }
 </script>
